@@ -19,10 +19,15 @@ jobs:
       - name: 从主仓拉两份 SKILL.md
         run: |
           set -euo pipefail
-          B=https://raw.githubusercontent.com/woowoeth/woowoeth.github.io/main/tools/skill
+          # 走 API 不走 raw：raw.githubusercontent.com 有 CDN 缓存（约五分钟），
+          # 主仓刚推完就跑这个 workflow，会把旧的那一份当成新的提交上来，
+          # 而且看起来完全成功。读缓存的同步，同步的是缓存。
+          B=https://api.github.com/repos/woowoeth/woowoeth.github.io/contents/tools/skill
           for d in ourword ourword-en; do
             mkdir -p "$d"
-            curl -fsSL "$B/$d/SKILL.md" -o "$d/SKILL.md"
+            curl -fsSL -H "Accept: application/vnd.github.raw" \
+                 -H "Authorization: Bearer ${{ github.token }}" \
+                 "$B/$d/SKILL.md" -o "$d/SKILL.md"
             # 空文件或 404 页面直接失败，别把坏内容提交上去
             test -s "$d/SKILL.md"
             grep -q '^name: ' "$d/SKILL.md"
