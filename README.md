@@ -1,8 +1,8 @@
 # ourword skills
 
 Two Claude Agent Skills for **[ourword.ai](https://ourword.ai)** — 403 deep reads on
-171 figures and classic texts across 2,600 years, indexed by **the situation you are
-actually in** rather than by topic or author.
+171 figures and classic texts across 2,600 years. There are author and topic pages
+too, but the front door is **the situation you are actually in**.
 
 | skill | for |
 |---|---|
@@ -16,11 +16,17 @@ themselves at 2am is not a translation of what a Chinese speaker says.
 ## Install
 
 ```bash
+npx skills add https://github.com/woowoeth/ourword-skills/tree/main/ourword-en
+```
+
+Or by hand:
+
+```bash
 git clone https://github.com/woowoeth/ourword-skills
 cp -R ourword-skills/ourword-en ~/.claude/skills/
 ```
 
-The folder name must match the `name` in the frontmatter. Use `.claude/skills/` inside
+Doing it by hand, the folder name must match the `name` in the frontmatter. Use `.claude/skills/` inside
 a project instead of `~/.claude/skills/` to scope it to that project.
 
 The skill works on its own: it reads `https://ourword.ai/en/llms.txt`, no configuration.
