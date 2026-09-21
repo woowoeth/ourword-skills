@@ -1,0 +1,40 @@
+name: sync
+# 这两份 SKILL.md 的**唯一真源**是 woowoeth/woowoeth.github.io 的 tools/skill/，
+# 这个仓只是它的镜像。所以同步是「这边去拉」，不是「那边来推」——
+# 拉不需要任何凭据（源仓是公开的），推需要一个跨仓 token，
+# 而那个 token 就会变成一份要有人保管的密钥。少一份密钥，少一个会过期的东西。
+on:
+  schedule:
+    - cron: "17 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  pull:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: 从主仓拉两份 SKILL.md
+        run: |
+          set -euo pipefail
+          B=https://raw.githubusercontent.com/woowoeth/woowoeth.github.io/main/tools/skill
+          for d in ourword ourword-en; do
+            mkdir -p "$d"
+            curl -fsSL "$B/$d/SKILL.md" -o "$d/SKILL.md"
+            # 空文件或 404 页面直接失败，别把坏内容提交上去
+            test -s "$d/SKILL.md"
+            grep -q '^name: ' "$d/SKILL.md"
+          done
+      - name: 有变化才提交
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            git config user.name  "ourword-sync"
+            git config user.email "noreply@ourword.ai"
+            git add -A
+            git commit -m "同步主仓 tools/skill/ 的改动"
+            git push
+          else
+            echo "没有变化"
+          fi
